@@ -8,3 +8,8 @@ jobs:
       - run: 
           name: demo run
           command: echo "Hello from CircleCI"
+
+workflows:
+  demo:
+    jobs:
+      - build
