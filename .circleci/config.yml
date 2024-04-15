@@ -1,15 +1,22 @@
 version: 2.1
-jobs:
-  build:
+jobs: 
+  test: 
     docker:
       - image: cimg/base:stable
     steps:
-      - checkout
-      - run: 
-          name: demo run
-          command: echo "Hello from CircleCI"
-
+      - run:
+          name: Run test
+          command: echo "Test was successful"
+  build:
+    steps:
+      - run:
+          name: Run
+          command: echo "Build successful"
 workflows:
-  demo:
+  version: 2.1
+  my_workflow:
     jobs:
-      - build
+      - test
+      - build:
+          requires:
+            - test
