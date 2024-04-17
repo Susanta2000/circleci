@@ -13,7 +13,7 @@ jobs:
           name: Test
           command: |
             python3 test.py
-          command: echo "Test was successful"
+            echo "Test was successful"
   deploy:
     docker:
       - image: cimg/base:2022.06
