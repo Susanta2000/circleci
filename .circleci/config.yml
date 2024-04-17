@@ -1,6 +1,4 @@
 version: 2.1
-orbs:
-  python: circleci/python@2.1.1
 jobs:
   build_and_test:
     docker:
@@ -18,20 +16,26 @@ jobs:
             echo "Test was successful"
   deploy:
     docker:
-      - image: cimg/base:2022.06
+      - image: cimg/python:3.10.2
     steps:
       - checkout
-      - python/install-packages:
-          pkg-manager: pip
-      - setup_remote_docker:
-          version: 19.03.13
+      
+      - setup_remote_docker
+
+      - run:
+          name: Install docker client
+          command: |
+            set -x
+            VER="24.0.5-ce"
+            curl -L -o /tmp/docker-$VER.tgz https://get.docker.com/builds/Linux/x86_64/docker-$VER.tgz
+            tar -xz -C /tmp -f /tmp/docker-$VER.tgz
+            mv /tmp/docker/* /usr/bin
+
       - run:
           name: Push image into Docker hub
           command: |
-            pip install --upgrade pip
             docker build -t $DOCKER_HUB_USER_ID/$IMAGE_NAME:latest .
-            echo "$DOCKER_HUB_PASSWORD" | docker login -u "$DOCKER_HUB_USER_ID"
-            --password-stdin 
+            echo "$DOCKER_HUB_PASSWORD" | docker login -u "$DOCKER_HUB_USER_ID" --password-stdin 
             docker push $DOCKER_HUB_USER_ID/$IMAGE_NAME:latest
 
 workflows:
