@@ -1,24 +1,20 @@
 version: 2.1
-jobs: 
-  test: 
-    docker:
-      - image: cimg/base:stable
-    steps:
-      - run:
-          name: Run test
-          command: echo "Test was successful"
+jobs:
   build:
     docker:
-      - image: cimg/base:stable
+      - image: cimg/python:3.10.2
     steps:
+      - checkout
       - run:
-          name: Run
-          command: echo "Build successful"
+          name: Install packages
+          command: |
+            pip install -r requirements.txt
+      - run:
+          name: Test
+          command: |
+            python3 test.py
 workflows:
   version: 2.1
-  my_workflow:
+  build_and_test:
     jobs:
-      - test
-      - build:
-          requires:
-            - test
+      - build
