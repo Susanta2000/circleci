@@ -1,39 +1,59 @@
 version: 2.1
 jobs:
-  build_and_test:
+  # running commands on a basic image
+  Hello-World:
     docker:
-      - image: cimg/python:3.10.2
+      - image: alpine:3.15
+    steps:
+      - run:
+          name: Saying Hello
+          command: |
+            echo 'Hello World!'
+            echo 'This is the delivery pipeline'
+  # fetching code from the repo
+  Fetch-Code:
+    docker:
+      - image: cimg/base:2021.04
     steps:
       - checkout
       - run:
-          name: Install packages
+          name: Getting the Code
           command: |
-            pip install -r requirements.txt
-      - run:
-          name: Test
-          command: |
-            python3 test.py
-            echo "Test was successful"
-  deploy:
+            ls -al
+            echo '^^^Your repo files^^^'
+  # running a node container
+  Using-Node:
     docker:
-      - image: cimg/base:2022.06
+      - image: cimg/node:17.2
     steps:
-      - checkout
-      
-      - setup_remote_docker:
-          version: edge
       - run:
-          name: Push image into Docker hub
+          name: Running the Node Container
           command: |
-            docker build -t $DOCKER_HUB_USER_ID/$IMAGE_NAME:latest .
-            echo "$DOCKER_HUB_PASSWORD" | docker login -u "$DOCKER_HUB_USER_ID" --password-stdin 
-            docker push $DOCKER_HUB_USER_ID/$IMAGE_NAME:latest
+            node -v
+  Now-Complete:
+    docker:
+      - image: alpine:3.15
+    steps:
+      - run:
+          name: Approval Complete
+          command: |
+            echo 'The work is now complete.'
 
 workflows:
-  version: 2.1
-  my_app_workflow:
+  Example-Workflow:
     jobs:
-      - build_and_test
-      - deploy:
+      - Hello-World
+      - Fetch-Code:
           requires:
-            - build_and_test
+            - Hello-World
+      - Using-Node:
+          requires:
+            - Fetch-Code
+      - Hold-for-Approval:
+          type: approval
+          requires:
+            - Using-Node
+            - Fetch-Code
+      - Now-Complete:
+          requires:
+            - Hold-for-Approval
