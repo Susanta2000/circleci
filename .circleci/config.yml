@@ -23,7 +23,7 @@ jobs:
       - checkout
       
       - setup_remote_docker:
-          version: 24.0.5
+          version: 24.0.9
       - run:
           name: Push image into Docker hub
           command: |
